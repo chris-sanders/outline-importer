@@ -35,8 +35,17 @@ class HttpClient(Session):
         return super(HttpClient, self).get(self.__url(path), **kwargs)
 
     def try_auth(self):
-        rsp = self.get("/api/auth.info", params={"token": self.token})
+        rsp = self.post("/api/auth.info", params={"token": self.token})
         return rsp.status_code // 100 == 2
+
+    def remove_collections(self):
+        rsp = self.post("/api/collections.list")
+        data = rsp.json()
+        for data in data["data"]:
+            print(f"Deleting {data['id']}")
+            payload = {"id": data['id']}
+            rsp = self.post("/api/collections.delete", json=payload)
+            print(rsp)
 
     def create_collection(self, name, desc):
         color = "0123456789ABCDEF"
@@ -87,6 +96,9 @@ class ApiClient:
             name=collection.name,
             desc=collection.description,
         )
+
+    def remove_collections(self):
+        return self.http_client.remove_collections()
 
     def create_document(self, document, is_publish):
         if os.path.isfile(document.path):

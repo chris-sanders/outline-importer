@@ -14,9 +14,14 @@ class Importer:
     def run(self):
         self.api_server.auth()
         collections = Finder.scan(self.dir_path)
-
         for c in collections:
             self._import_collection(c)
+
+        #self._remove_collections()
+        
+    def _remove_collections(self):
+        print("Removing all collections")
+        self.api_server.remove_collections()
 
     def _import_collection(self, collection):
         print("Create collection: {}".format(collection.name))
